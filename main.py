@@ -79,7 +79,11 @@ async def lifespan(app: FastAPI):
     risorse["chroma_collection"] = chromadb.PersistentClient(
         path="./chroma_db"
     ).get_collection(name="polimi_docs")
-    risorse["modello_embedding"] = TextEmbedding(model_name=MODELLO_EMBEDDING)
+    risorse["modello_embedding"] = TextEmbedding(
+        model_name=MODELLO_EMBEDDING,
+        cache_dir=os.environ.get("FASTEMBED_CACHE_DIR", "/app/fastembed_cache"),
+        local_files_only=True,
+    )
     risorse["client_groq"] = Groq(api_key=os.environ.get("GROQ_API_KEY"))
     print(f"Risorse caricate. Elementi nella collection: {risorse['chroma_collection'].count()}")
     yield
