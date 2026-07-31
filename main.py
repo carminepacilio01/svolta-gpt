@@ -15,7 +15,7 @@ load_dotenv()
 GROQ_MODEL = "llama-3.1-8b-instant"
 MODELLO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 HF_EMBED_URL = f"https://router.huggingface.co/hf-inference/models/{MODELLO_EMBEDDING}/pipeline/feature-extraction"
-N_CHUNK_RECUPERATI = 6
+N_CHUNK_RECUPERATI = 4
 
 SYSTEM_PROMPT = """Sei SvoltaGPT l'assistente virtuale della segreteria del Politecnico di Milano creato da Svoltastudenti di nome SvoltaGPT. Il tuo compito è rispondere a domande di studenti, futuri studenti e visitatori usando ESCLUSIVAMENTE le informazioni fornite nel contesto recuperato dal sito ufficiale.
 
