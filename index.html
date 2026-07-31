@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SvoltaGPT — Segreteria virtuale Polimi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root {
+    --arancio: #FF6A13;
+    --arancio-scuro: #E0550A;
+    --arancio-chiaro: #FFE9D6;
+    --crema: #FFF8F2;
+    --inchiostro: #211812;
+    --fumo: #8A7A6D;
+    --bianco: #FFFFFF;
+    --bordo: #F0E2D5;
+    --ombra: 0 4px 24px rgba(224, 85, 10, 0.10);
+    --ombra-forte: 0 12px 40px rgba(224, 85, 10, 0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--crema);
+    color: var(--inchiostro);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    padding: 28px 24px 20px;
+    text-align: center;
+    animation: scendi 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .marchio {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .marchio svg { width: 42px; height: 42px; display: block; }
+
+  .curva {
+    fill: none;
+    stroke: var(--arancio);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    animation: disegna 1.1s 0.3s cubic-bezier(0.6, 0, 0.2, 1) forwards;
+  }
+  .punta {
+    fill: var(--arancio);
+    opacity: 0;
+    animation: appari 0.3s 1.2s forwards;
+  }
+
+  .logo-testo {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: -0.02em;
+  }
+  .logo-testo .gpt { color: var(--arancio); }
+
+  .sottotitolo {
+    color: var(--fumo);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* ---------- Chat ---------- */
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 8px 20px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 0 24px;
+    overflow-y: auto;
+  }
+
+  .bolla {
+    max-width: 88%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    line-height: 1.55;
+    font-size: 15px;
+    animation: entra 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    word-wrap: break-word;
+  }
+
+  .utente {
+    align-self: flex-end;
+    background: var(--arancio);
+    color: var(--bianco);
+    border-bottom-right-radius: 6px;
+    font-weight: 500;
+  }
+
+  .bot {
+    align-self: flex-start;
+    background: var(--bianco);
+    border: 1px solid var(--bordo);
+    border-bottom-left-radius: 6px;
+    box-shadow: var(--ombra);
+  }
+
+  /* markdown dentro le bolle bot */
+  .bot h1, .bot h2, .bot h3 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.1em; margin: 8px 0 4px; }
+  .bot p { margin: 6px 0; }
+  .bot ul, .bot ol { margin: 6px 0 6px 20px; }
+  .bot li { margin: 3px 0; }
+  .bot table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
+  .bot th, .bot td { border: 1px solid var(--bordo); padding: 7px 10px; text-align: left; }
+  .bot th { background: var(--arancio-chiaro); font-weight: 600; }
+  .bot code { background: var(--arancio-chiaro); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+  .bot strong { font-weight: 600; }
+
+  .fonti {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--bordo);
+    font-size: 13px;
+  }
+  .fonti-titolo { color: var(--fumo); font-weight: 600; margin-bottom: 6px; }
+  .fonti a {
+    display: block;
+    color: var(--arancio-scuro);
+    text-decoration: none;
+    padding: 2px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fonti a:hover { text-decoration: underline; }
+
+  /* indicatore di caricamento */
+  .caricamento { display: flex; gap: 6px; align-items: center; }
+  .caricamento span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--arancio);
+    animation: pulsa 1.2s infinite ease-in-out;
+  }
+  .caricamento span:nth-child(2) { animation-delay: 0.2s; }
+  .caricamento span:nth-child(3) { animation-delay: 0.4s; }
+  .nota-attesa { color: var(--fumo); font-size: 12px; margin-top: 8px; }
+
+  /* messaggio di benvenuto */
+  .benvenuto {
+    text-align: center;
+    color: var(--fumo);
+    margin: auto 0;
+    padding: 40px 20px;
+    animation: entra 0.6s 0.4s both;
+  }
+  .benvenuto h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 600;
+    color: var(--inchiostro);
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .suggerimenti { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+  .chip {
+    background: var(--bianco);
+    border: 1px solid var(--bordo);
+    padding: 9px 16px;
+    border-radius: 100px;
+    font-size: 13.5px;
+    color: var(--inchiostro);
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: inherit;
+  }
+  .chip:hover { border-color: var(--arancio); color: var(--arancio-scuro); transform: translateY(-1px); box-shadow: var(--ombra); }
+
+  /* ---------- Barra input ---------- */
+  .barra {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, var(--crema) 70%, transparent);
+    padding: 12px 0 20px;
+  }
+  .barra-inner {
+    display: flex;
+    gap: 10px;
+    background: var(--bianco);
+    border: 1.5px solid var(--bordo);
+    border-radius: 100px;
+    padding: 6px 6px 6px 20px;
+    box-shadow: var(--ombra);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .barra-inner:focus-within { border-color: var(--arancio); box-shadow: var(--ombra-forte); }
+
+  #domanda {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 15px;
+    background: transparent;
+    color: var(--inchiostro);
+    resize: none;
+    max-height: 120px;
+    line-height: 1.4;
+    padding: 8px 0;
+  }
+  #domanda::placeholder { color: var(--fumo); }
+
+  #invia {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: var(--arancio);
+    color: white;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 0.18s, transform 0.18s;
+  }
+  #invia:hover:not(:disabled) { background: var(--arancio-scuro); transform: scale(1.05); }
+  #invia:disabled { opacity: 0.4; cursor: not-allowed; }
+  #invia svg { width: 20px; height: 20px; }
+
+  /* config endpoint */
+  .config {
+    text-align: center;
+    padding: 0 20px 14px;
+    font-size: 12px;
+    color: var(--fumo);
+  }
+  .config summary { cursor: pointer; user-select: none; }
+  .config input {
+    margin-top: 8px;
+    width: 100%;
+    max-width: 480px;
+    padding: 8px 12px;
+    border: 1px solid var(--bordo);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+  }
+
+  @keyframes scendi { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+  @keyframes entra { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes disegna { to { stroke-dashoffset: 0; } }
+  @keyframes appari { to { opacity: 1; } }
+  @keyframes pulsa { 0%, 60%, 100% { transform: scale(0.7); opacity: 0.5; } 30% { transform: scale(1); opacity: 1; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .curva { stroke-dashoffset: 0; }
+    .punta { opacity: 1; }
+  }
+
+  @media (max-width: 520px) {
+    .logo-testo { font-size: 26px; }
+    .bolla { max-width: 92%; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="marchio">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path class="curva" d="M 10 38 Q 10 12 34 12" />
+        <path class="punta" d="M 34 5 L 44 12 L 34 19 Z" />
+      </svg>
+      <span class="logo-testo">Svolta<span class="gpt">GPT</span></span>
+    </div>
+    <p class="sottotitolo">La segreteria virtuale del Politecnico di Milano made by <span class="gpt">Svoltastudenti</span></p>
+  </header>
+
+  <main>
+    <div id="chat">
+      <div class="benvenuto" id="benvenuto">
+        <h2>Ciao! Come posso aiutarti?</h2>
+        <p>Chiedimi di corsi, tasse, ammissioni, scadenze e servizi agli studenti.</p>
+        <div class="suggerimenti">
+          <button class="chip">Quali corsi di laurea magistrale ci sono?</button>
+          <button class="chip">Come funzionano le tasse in base all'ISEE?</button>
+          <button class="chip">Quando aprono le immatricolazioni?</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="barra">
+      <div class="barra-inner">
+        <textarea id="domanda" rows="1" placeholder="Scrivi la tua domanda..." autocomplete="off"></textarea>
+        <button id="invia" aria-label="Invia domanda">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <details class="config">
+    <summary>Impostazioni</summary>
+    <input id="endpoint" type="url" placeholder="svolta-gpt.onrender.com" />
+  </details>
+
+<script>
+  // ---- Configurazione endpoint ----
+  // Sostituisci con l'URL del tuo servizio Render, oppure impostalo dal pannello "Impostazioni".
+  const ENDPOINT_DEFAULT = "https://svolta-gpt.onrender.com";
+
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("domanda");
+  const btnInvia = document.getElementById("invia");
+  const benvenuto = document.getElementById("benvenuto");
+  const campoEndpoint = document.getElementById("endpoint");
+
+  // recupera endpoint salvato (se il browser lo consente)
+  let endpoint = ENDPOINT_DEFAULT;
+  try {
+    const salvato = localStorage.getItem("svoltagpt_endpoint");
+    if (salvato) endpoint = salvato;
+  } catch (e) {}
+  campoEndpoint.value = endpoint;
+
+  campoEndpoint.addEventListener("change", () => {
+    endpoint = campoEndpoint.value.trim().replace(/\/$/, "");
+    try { localStorage.setItem("svoltagpt_endpoint", endpoint); } catch (e) {}
+  });
+
+  // textarea auto-espandibile
+  input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 120) + "px";
+  });
+
+  // invio con Enter (Shift+Enter = a capo)
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      invia();
+    }
+  });
+
+  btnInvia.addEventListener("click", invia);
+
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      input.value = chip.textContent;
+      invia();
+    });
+  });
+
+  function aggiungiBolla(testo, tipo) {
+    const bolla = document.createElement("div");
+    bolla.className = "bolla " + tipo;
+    if (tipo === "bot") {
+      bolla.innerHTML = marked.parse(testo);
+    } else {
+      bolla.textContent = testo;
+    }
+    chat.appendChild(bolla);
+    chat.scrollTop = chat.scrollHeight;
+    return bolla;
+  }
+
+  function mostraCaricamento() {
+    const bolla = document.createElement("div");
+    bolla.className = "bolla bot";
+    bolla.innerHTML = `
+      <div class="caricamento"><span></span><span></span><span></span></div>
+      <div class="nota-attesa">Sto cercando tra i documenti ufficiali... (il primo avvio può richiedere fino a un minuto)</div>`;
+    chat.appendChild(bolla);
+    chat.scrollTop = chat.scrollHeight;
+    return bolla;
+  }
+
+  async function invia() {
+    const domanda = input.value.trim();
+    if (!domanda) return;
+
+    if (benvenuto) benvenuto.remove();
+
+    aggiungiBolla(domanda, "utente");
+    input.value = "";
+    input.style.height = "auto";
+    input.disabled = true;
+    btnInvia.disabled = true;
+
+    const caricamento = mostraCaricamento();
+
+    try {
+      const risposta = await fetch(endpoint + "/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domanda: domanda }),
+      });
+
+      if (!risposta.ok) throw new Error("Il server ha risposto con stato " + risposta.status);
+
+      const dati = await risposta.json();
+      caricamento.remove();
+
+      const bolla = aggiungiBolla(dati.risposta || "Nessuna risposta ricevuta.", "bot");
+
+      if (dati.fonti && dati.fonti.length > 0) {
+        const box = document.createElement("div");
+        box.className = "fonti";
+        box.innerHTML = '<div class="fonti-titolo">Fonti</div>';
+        dati.fonti.forEach(url => {
+          const a = document.createElement("a");
+          a.href = url;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.textContent = url;
+          box.appendChild(a);
+        });
+        bolla.appendChild(box);
+      }
+    } catch (errore) {
+      caricamento.remove();
+      aggiungiBolla(
+        "Non riesco a raggiungere il servizio in questo momento. Controlla che l'URL del backend sia corretto nelle Impostazioni e riprova tra qualche istante.",
+        "bot"
+      );
+    } finally {
+      input.disabled = false;
+      btnInvia.disabled = false;
+      input.focus();
+    }
+  }
+</script>
+</body>
+</html>

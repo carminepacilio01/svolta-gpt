@@ -3,12 +3,14 @@ from contextlib import asynccontextmanager
 
 import requests
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from groq import Groq
 import chromadb
 
 load_dotenv()
+
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
 MODELLO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
@@ -87,6 +89,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Segreteria Virtuale Polimi", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # per iniziare; poi restringi al tuo dominio github.io
+    allow_methods=["POST", "GET"],
+    allow_headers=["*"],
+)
 
 
 class DomandaRequest(BaseModel):
