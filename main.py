@@ -1,21 +1,21 @@
 import os
-os.environ.setdefault("FASTEMBED_CACHE_DIR", "/app/fastembed_cache")
 from contextlib import asynccontextmanager
 
+import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from groq import Groq
 import chromadb
-from fastembed import TextEmbedding
 
 load_dotenv()
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
 MODELLO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+HF_EMBED_URL = f"https://router.huggingface.co/hf-inference/models/{MODELLO_EMBEDDING}/pipeline/feature-extraction"
 N_CHUNK_RECUPERATI = 12
 
-SYSTEM_PROMPT = """Sei l'assistente virtuale della segreteria del Politecnico di Milano creato da Svoltastudenti di nome SvoltaGPT. Il tuo compito è rispondere a domande di studenti, futuri studenti e visitatori usando ESCLUSIVAMENTE le informazioni fornite nel contesto recuperato dal sito ufficiale.
+SYSTEM_PROMPT = """Sei SvoltaGPT l'assistente virtuale della segreteria del Politecnico di Milano creato da Svoltastudenti di nome SvoltaGPT. Il tuo compito è rispondere a domande di studenti, futuri studenti e visitatori usando ESCLUSIVAMENTE le informazioni fornite nel contesto recuperato dal sito ufficiale.
 
     REGOLE FONDAMENTALI:
     1. Rispondi SOLO usando le informazioni nel contesto fornito. Non inventare mai informazioni, numeri, date, requisiti o procedure che non sono esplicitamente presenti nel contesto.
@@ -79,11 +79,7 @@ async def lifespan(app: FastAPI):
     risorse["chroma_collection"] = chromadb.PersistentClient(
         path="./chroma_db"
     ).get_collection(name="polimi_docs")
-    risorse["modello_embedding"] = TextEmbedding(
-        model_name=MODELLO_EMBEDDING,
-        cache_dir=os.environ.get("FASTEMBED_CACHE_DIR", "/app/fastembed_cache"),
-        local_files_only=True,
-    )
+    risorse["hf_token"] = os.environ.get("HF_API_TOKEN")
     risorse["client_groq"] = Groq(api_key=os.environ.get("GROQ_API_KEY"))
     print(f"Risorse caricate. Elementi nella collection: {risorse['chroma_collection'].count()}")
     yield
@@ -102,8 +98,21 @@ class RispostaResponse(BaseModel):
     fonti: list[str]
 
 
+def calcola_embedding_hf(testi):
+    """Calcola gli embedding chiamando la Inference API di Hugging Face,
+    invece di caricare il modello in memoria localmente."""
+    risposta = requests.post(
+        HF_EMBED_URL,
+        headers={"Authorization": f"Bearer {risorse['hf_token']}"},
+        json={"inputs": testi, "options": {"wait_for_model": True}},
+        timeout=30,
+    )
+    risposta.raise_for_status()
+    return risposta.json()
+
+
 def recupera_contesto(domanda, n=N_CHUNK_RECUPERATI):
-    embedding_domanda = [v.tolist() for v in risorse["modello_embedding"].embed([domanda])]
+    embedding_domanda = calcola_embedding_hf([domanda])
     risultati = risorse["chroma_collection"].query(
         query_embeddings=embedding_domanda,
         n_results=n,
