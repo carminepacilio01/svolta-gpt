@@ -15,7 +15,7 @@ COPY common_ingest.py .
 
 # scarichiamo il database vettoriale già popolato da una GitHub Release,
 # invece di versionarlo su Git (supera il limite di 100MB per file)
-RUN curl -L -o chroma_db.tar.gz https://github.com/carminepacilio01/svolta-gpt/releases/download/v1.0-chroma-db/chroma_db.tar.gz \
+RUN curl -fL -A "Mozilla/5.0" -o chroma_db.tar.gz https://github.com/carminepacilio01/svolta-gpt/releases/download/v1.0-chroma-db/chroma_db.tar.gz \
     && tar -xzf chroma_db.tar.gz \
     && rm chroma_db.tar.gz
 
