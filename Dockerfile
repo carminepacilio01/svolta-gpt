@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# cache persistente per il modello fastembed, scaricato UNA VOLTA durante il build
+ENV FASTEMBED_CACHE_DIR=/app/fastembed_cache
+RUN python3 -c "from fastembed import TextEmbedding; TextEmbedding(model_name='sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')"
+
 COPY main.py .
 COPY common_ingest.py .
 

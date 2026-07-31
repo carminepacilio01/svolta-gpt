@@ -1,4 +1,5 @@
 import os
+os.environ.setdefault("FASTEMBED_CACHE_DIR", "/app/fastembed_cache")
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
