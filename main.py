@@ -6,12 +6,12 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from groq import Groq
 import chromadb
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 
 load_dotenv()
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
-MODELLO_EMBEDDING = "paraphrase-multilingual-MiniLM-L12-v2"
+MODELLO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 N_CHUNK_RECUPERATI = 12
 
 SYSTEM_PROMPT = """Sei l'assistente virtuale della segreteria del Politecnico di Milano creato da Svoltastudenti di nome SvoltaGPT. Il tuo compito è rispondere a domande di studenti, futuri studenti e visitatori usando ESCLUSIVAMENTE le informazioni fornite nel contesto recuperato dal sito ufficiale.
@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
     risorse["chroma_collection"] = chromadb.PersistentClient(
         path="./chroma_db"
     ).get_collection(name="polimi_docs")
-    risorse["modello_embedding"] = SentenceTransformer(MODELLO_EMBEDDING)
+    risorse["modello_embedding"] = TextEmbedding(model_name=MODELLO_EMBEDDING)
     risorse["client_groq"] = Groq(api_key=os.environ.get("GROQ_API_KEY"))
     print(f"Risorse caricate. Elementi nella collection: {risorse['chroma_collection'].count()}")
     yield
@@ -98,7 +98,7 @@ class RispostaResponse(BaseModel):
 
 
 def recupera_contesto(domanda, n=N_CHUNK_RECUPERATI):
-    embedding_domanda = risorse["modello_embedding"].encode([domanda]).tolist()
+    embedding_domanda = [v.tolist() for v in risorse["modello_embedding"].embed([domanda])]
     risultati = risorse["chroma_collection"].query(
         query_embeddings=embedding_domanda,
         n_results=n,
@@ -110,12 +110,14 @@ def recupera_contesto(domanda, n=N_CHUNK_RECUPERATI):
 
     chunk_filtrati = []
     meta_filtrati = []
+    dist_filtrate = []
     for doc, meta, dist in zip(documenti, metadati, distanze):
         chunk_filtrati.append(doc)
         meta_filtrati.append(meta)
+        dist_filtrate.append(dist)
 
     print(f"[retrieval] {len(chunk_filtrati)}/{len(documenti)} chunk sotto soglia distanza")
-    for meta, dist in zip(meta_filtrati, distanze[:len(meta_filtrati)]):
+    for meta, dist in zip(meta_filtrati, dist_filtrate):
         print(f"   - {meta.get('titolo', '')[:60]} (dist={dist:.3f}) [{meta.get('tipo', '')}]")
 
     return chunk_filtrati, meta_filtrati
