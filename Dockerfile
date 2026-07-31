@@ -14,8 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV FASTEMBED_CACHE_DIR=/app/fastembed_cache
 RUN python3 -c "from fastembed import TextEmbedding; TextEmbedding(model_name='sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')"
 
-# diagnostica temporanea: mostra la struttura reale della cache creata
-RUN find /app/fastembed_cache -maxdepth 3 -type d
 
 COPY main.py .
 COPY common_ingest.py .
