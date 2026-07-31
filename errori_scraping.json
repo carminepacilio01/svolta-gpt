@@ -1,0 +1,50 @@
+[
+  {
+    "url": "https://www.polimi.it/formazione/corsi-di-laurea/dettaglio-corso",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/formazione/corsi-di-laurea/dettaglio-corso"
+  },
+  {
+    "url": "https://www.polimi.it/il-politecnico/news/dettaglio-news",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/il-politecnico/news/dettaglio-news"
+  },
+  {
+    "url": "https://www.polimi.it/ricerca/news-e-comunicati/dettaglio",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/ricerca/news-e-comunicati/dettaglio"
+  },
+  {
+    "url": "https://www.polimi.it/studenti/avvisi/dettaglio",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/studenti/avvisi/dettaglio"
+  },
+  {
+    "url": "https://www.polimi.it/campus-e-servizi/mobilita-internazionale/studiare-allestero/avvisi/dettaglio-avviso",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/campus-e-servizi/mobilita-internazionale/studiare-allestero/avvisi/dettaglio-avviso"
+  },
+  {
+    "url": "https://www.polimi.it/formazione/formazione-oltre-la-laurea/master-universitari-e-corsi-post-laurea/dettaglio-master",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/formazione/formazione-oltre-la-laurea/master-universitari-e-corsi-post-laurea/dettaglio-master"
+  },
+  {
+    "url": "https://www.polimi.it/formazione/corsi-di-laurea-magistrale/dettaglio-corso",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/formazione/corsi-di-laurea-magistrale/dettaglio-corso"
+  },
+  {
+    "url": "https://www.polimi.it/formazione/passion-in-action/dettaglio",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/formazione/passion-in-action/dettaglio"
+  },
+  {
+    "url": "https://www.polimi.it/stampa/comunicati-per-la-stampa/dettaglio",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/stampa/comunicati-per-la-stampa/dettaglio"
+  },
+  {
+    "url": "https://www.polimi.it/futuri-studenti/avvisi/dettaglio-news",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/futuri-studenti/avvisi/dettaglio-news"
+  },
+  {
+    "url": "https://www.polimi.it/campus-e-servizi/mobilita-internazionale/studiare-al-polimi/avvisi/dettaglio-avviso",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/campus-e-servizi/mobilita-internazionale/studiare-al-polimi/avvisi/dettaglio-avviso"
+  },
+  {
+    "url": "https://www.polimi.it/sviluppo-sostenibile/news/dettaglio-news",
+    "errore": "404 Client Error: Not Found for url: https://www.polimi.it/sviluppo-sostenibile/news/dettaglio-news"
+  }
+]

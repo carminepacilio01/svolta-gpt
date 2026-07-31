@@ -1,0 +1,11 @@
+venv/
+pdf_regolamenti/
+pdf_regolamenti_ingindinf/
+pdf_regolamenti_corsi/
+*.json
+.env
+.git
+.gitignore
+__pycache__/
+*.pyc
+.DS_Store
